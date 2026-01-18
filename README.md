@@ -1,6 +1,7 @@
-![PyPI](https://img.shields.io/pypi/v/gmdkit?style=flat-square)
-![Python](https://img.shields.io/pypi/pyversions/gmdkit?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+![Python Badge](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=fff&style=for-the-badge)
+![Framework](https://img.shields.io/badge/Framework-6A1B9A?style=for-the-badge)
+![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)
+![Level Editor](https://img.shields.io/badge/Level%20Editor-424242?style=for-the-badge)
 
 # gmdbuilder
 An unopinionated General-Purpose Geometry Dash framework for safe and easy level editing and scripting.
