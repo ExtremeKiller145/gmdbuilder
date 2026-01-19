@@ -1,6 +1,7 @@
 # gmdbuilder – TODO
 
 URGENT ! ! ! !
+- Fix gen_typed_obj_classes.py generating duplicate classes in object_types
 
 
 
