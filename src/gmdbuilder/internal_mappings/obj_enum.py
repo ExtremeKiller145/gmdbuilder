@@ -1,425 +1,426 @@
 
-class ObjEnum(str):
+
+class ObjEnum(int):
     pass
 
-    class Easing(str):
-        NONE = "a0"
-        EASE_IN_OUT = "a1"
-        EASE_IN = "a2"
-        EASE_OUT = "a3"
-        ELASTIC_IN_OUT = "a4"
-        ELASTIC_IN = "a5"
-        ELASTIC_OUT = "a6"
-        BOUNCE_IN_OUT = "a7"
-        BOUNCE_IN = "a8"
-        BOUNCE_OUT = "a9"
-        EXPONENTIAL_IN_OUT = "a10"
-        EXPONENTIAL_IN = "a11"
-        EXPONENTIAL_OUT = "a12"
-        SINE_IN_OUT = "a13"
-        SINE_IN = "a14"
-        SINE_OUT = "a15"
-        BACK_IN_OUT = "a16"
-        BACK_IN = "a17"
-        BACK_OUT = "a18"
+    class Easing(int):
+        NONE = 0
+        EASE_IN_OUT = 1
+        EASE_IN = 2
+        EASE_OUT = 3
+        ELASTIC_IN_OUT = 4
+        ELASTIC_IN = 5
+        ELASTIC_OUT = 6
+        BOUNCE_IN_OUT = 7
+        BOUNCE_IN = 8
+        BOUNCE_OUT = 9
+        EXPONENTIAL_IN_OUT = 10
+        EXPONENTIAL_IN = 11
+        EXPONENTIAL_OUT = 12
+        SINE_IN_OUT = 13
+        SINE_IN = 14
+        SINE_OUT = 15
+        BACK_IN_OUT = 16
+        BACK_IN = 17
+        BACK_OUT = 18
 
-    class ItemLabel(str):
+    class ItemLabel(int):
         pass
 
-        class Alignment(str):
-            CENTER = "a0"
-            LEFT = "a1"
-            RIGHT = "a2"
+        class Alignment(int):
+            CENTER = 0
+            LEFT = 1
+            RIGHT = 2
 
-        class SpecialId(str):
-            MAINTIME = "a-1"
-            POINTS = "a-2"
-            ATTEMPTS = "a-3"
+        class SpecialId(int):
+            MAINTIME = -1
+            POINTS = -2
+            ATTEMPTS = -3
 
-    class Level(str):
+    class Level(int):
         pass
 
-        class Color17(str):
+        class Color17(int):
             pass
 
-            class PlayerColor(str):
-                NONE = "a0"
-                PLAYER_1 = "a1"
-                PLAYER_2 = "a2"
+            class PlayerColor(int):
+                NONE = 0
+                PLAYER_1 = 1
+                PLAYER_2 = 2
 
-    class OldColor(str):
-        PLAYER_1 = "a1"
-        PLAYER_2 = "a2"
-        COLOR_1 = "a3"
-        COLOR_2 = "a4"
-        LIGHT_BG = "a5"
-        COLOR_3 = "a6"
-        COLOR_4 = "a7"
-        LINE_3D = "a8"
+    class OldColor(int):
+        PLAYER_1 = 1
+        PLAYER_2 = 2
+        COLOR_1 = 3
+        COLOR_2 = 4
+        LIGHT_BG = 5
+        COLOR_3 = 6
+        COLOR_4 = 7
+        LINE_3D = 8
 
-    class SingleColorType(str):
-        DEFAULT = "a0"
-        BASE = "a1"
-        DETAIL = "a2"
+    class SingleColorType(int):
+        DEFAULT = 0
+        BASE = 1
+        DETAIL = 2
 
-    class Trigger(str):
+    class Trigger(int):
         pass
 
-        class AdvFollow(str):
+        class AdvFollow(int):
             pass
 
-            class Init(str):
-                INIT = "a0"
-                SET = "a1"
-                ADD = "a2"
+            class Init(int):
+                INIT = 0
+                SET = 1
+                ADD = 2
 
-            class Mode(str):
-                MODE_1 = "a0"
-                MODE_2 = "a1"
-                MODE_3 = "a2"
+            class Mode(int):
+                MODE_1 = 0
+                MODE_2 = 1
+                MODE_3 = 2
 
-        class Arrow(str):
+        class Arrow(int):
             pass
 
-            class Direction(str):
-                NONE = "a0"
-                UP = "a1"
-                DOWN = "a2"
-                LEFT = "a3"
-                RIGHT = "a4"
+            class Direction(int):
+                NONE = 0
+                UP = 1
+                DOWN = 2
+                LEFT = 3
+                RIGHT = 4
 
-        class Bpm(str):
+        class Bpm(int):
             pass
 
-            class Speed(str):
-                NORMAL = "a0"
-                SLOW = "a1"
-                FAST = "a2"
-                VERY_FAST = "a3"
-                SUPER_FAST = "a4"
+            class Speed(int):
+                NORMAL = 0
+                SLOW = 1
+                FAST = 2
+                VERY_FAST = 3
+                SUPER_FAST = 4
 
-        class CameraEdge(str):
+        class CameraEdge(int):
             pass
 
-            class Direction(str):
-                NONE = "a0"
-                LEFT = "a1"
-                RIGHT = "a2"
-                UP = "a3"
-                DOWN = "a4"
+            class Direction(int):
+                NONE = 0
+                LEFT = 1
+                RIGHT = 2
+                UP = 3
+                DOWN = 4
 
-        class Effect(str):
+        class Effect(int):
             pass
 
-            class EnterOnly(str):
-                NONE = "a0"
-                ENTER = "a1"
-                EXIT = "a2"
+            class EnterOnly(int):
+                NONE = 0
+                ENTER = 1
+                EXIT = 2
 
-            class SpecialCenter(str):
-                P1 = "a-1"
-                P2 = "a-2"
-                C = "a-3"
-                BL = "a-4"
-                CL = "a-5"
-                TL = "a-6"
-                BC = "a-7"
-                TC = "a-8"
-                BR = "a-9"
-                CR = "a-10"
-                TR = "a-11"
+            class SpecialCenter(int):
+                P1 = -1
+                P2 = -2
+                C = -3
+                BL = -4
+                CL = -5
+                TL = -6
+                BC = -7
+                TC = -8
+                BR = -9
+                CR = -10
+                TR = -11
 
-        class EnterPreset(str):
+        class EnterPreset(int):
             pass
 
-            class EnterOnly(str):
-                NONE = "a0"
-                ENTER = "a1"
-                EXIT = "a2"
+            class EnterOnly(int):
+                NONE = 0
+                ENTER = 1
+                EXIT = 2
 
-        class Gradient(str):
+        class Gradient(int):
             pass
 
-            class Blending(str):
-                NORMAL = "a0"
-                ADDITIVE = "a1"
-                MULTIPLY = "a2"
-                INVERT = "a3"
+            class Blending(int):
+                NORMAL = 0
+                ADDITIVE = 1
+                MULTIPLY = 2
+                INVERT = 3
 
-            class Layer(str):
-                BG = "a1"
-                MG = "a2"
-                B5 = "a3"
-                B4 = "a4"
-                B3 = "a5"
-                B2 = "a6"
-                B1 = "a7"
-                P = "a8"
-                T1 = "a9"
-                T2 = "a10"
-                T3 = "a11"
-                T4 = "a12"
-                G = "a13"
-                UI = "a14"
-                MAX = "a15"
+            class Layer(int):
+                BG = 1
+                MG = 2
+                B5 = 3
+                B4 = 4
+                B3 = 5
+                B2 = 6
+                B1 = 7
+                P = 8
+                T1 = 9
+                T2 = 10
+                T3 = 11
+                T4 = 12
+                G = 13
+                UI = 14
+                MAX = 15
 
-        class InstantCount(str):
+        class InstantCount(int):
             pass
 
-            class Mode(str):
-                EQUAL = "a0"
-                LARGER = "a1"
-                SMALLER = "a2"
+            class Mode(int):
+                EQUAL = 0
+                LARGER = 1
+                SMALLER = 2
 
-        class ItemCompare(str):
+        class ItemCompare(int):
             pass
 
-            class ItemOp(str):
-                ADD = "a1"
-                SUBTRACT = "a2"
-                MULTIPLY = "a3"
-                DIVIDE = "a4"
+            class ItemOp(int):
+                ADD = 1
+                SUBTRACT = 2
+                MULTIPLY = 3
+                DIVIDE = 4
 
-            class ItemType(str):
-                DEFAULT = "a0"
-                ITEM = "a1"
-                TIMER = "a2"
-                POINTS = "a3"
-                MAINTIME = "a4"
-                ATTEMPTS = "a5"
+            class ItemType(int):
+                DEFAULT = 0
+                ITEM = 1
+                TIMER = 2
+                POINTS = 3
+                MAINTIME = 4
+                ATTEMPTS = 5
 
-            class RoundOp(str):
-                NONE = "a0"
-                ROUND = "a1"
-                FLOOR = "a2"
-                CEILING = "a3"
+            class RoundOp(int):
+                NONE = 0
+                ROUND = 1
+                FLOOR = 2
+                CEILING = 3
 
-            class SignOp(str):
-                NONE = "a0"
-                ABSOLUTE = "a1"
-                NEGATIVE = "a2"
+            class SignOp(int):
+                NONE = 0
+                ABSOLUTE = 1
+                NEGATIVE = 2
 
-        class ItemEdit(str):
+        class ItemEdit(int):
             pass
 
-            class ItemOp(str):
-                ADD = "a1"
-                SUBTRACT = "a2"
-                MULTIPLY = "a3"
-                DIVIDE = "a4"
+            class ItemOp(int):
+                ADD = 1
+                SUBTRACT = 2
+                MULTIPLY = 3
+                DIVIDE = 4
 
-            class ItemType(str):
-                DEFAULT = "a0"
-                ITEM = "a1"
-                TIMER = "a2"
-                POINTS = "a3"
-                MAINTIME = "a4"
-                ATTEMPTS = "a5"
+            class ItemType(int):
+                DEFAULT = 0
+                ITEM = 1
+                TIMER = 2
+                POINTS = 3
+                MAINTIME = 4
+                ATTEMPTS = 5
 
-            class RoundOp(str):
-                NONE = "a0"
-                ROUND = "a1"
-                FLOOR = "a2"
-                CEILING = "a3"
+            class RoundOp(int):
+                NONE = 0
+                ROUND = 1
+                FLOOR = 2
+                CEILING = 3
 
-            class SignOp(str):
-                NONE = "a0"
-                ABSOLUTE = "a1"
-                NEGATIVE = "a2"
+            class SignOp(int):
+                NONE = 0
+                ABSOLUTE = 1
+                NEGATIVE = 2
 
-        class Keyframe(str):
+        class Keyframe(int):
             pass
 
-            class SpinDirection(str):
-                NONE = "a0"
-                CW = "a1"
-                CCW = "a2"
+            class SpinDirection(int):
+                NONE = 0
+                CW = 1
+                CCW = 2
 
-            class TimeMode(str):
-                TIME = "a0"
-                EVEN = "a1"
-                DIST = "a2"
+            class TimeMode(int):
+                TIME = 0
+                EVEN = 1
+                DIST = 2
 
-        class Move(str):
+        class Move(int):
             pass
 
-            class TargetAxis(str):
-                NONE = "a0"
-                X = "a1"
-                Y = "a2"
+            class TargetAxis(int):
+                NONE = 0
+                X = 1
+                Y = 2
 
-        class OffsetCamera(str):
+        class OffsetCamera(int):
             pass
 
-            class Axis(str):
-                NONE = "a0"
-                X = "a1"
-                Y = "a2"
+            class Axis(int):
+                NONE = 0
+                X = 1
+                Y = 2
 
-        class OffsetGameplay(str):
+        class OffsetGameplay(int):
             pass
 
-            class Axis(str):
-                NONE = "a0"
-                X = "a1"
-                Y = "a2"
+            class Axis(int):
+                NONE = 0
+                X = 1
+                Y = 2
 
-        class Options(str):
-            DISABLE = "a-1"
-            IGNORE = "a0"
-            ENABLE = "a1"
+        class Options(int):
+            DISABLE = -1
+            IGNORE = 0
+            ENABLE = 1
 
-        class Pickup(str):
+        class Pickup(int):
             pass
 
-            class Mode(str):
-                ADD = "a0"
-                MULTIPLY = "a1"
-                DIVIDE = "a2"
+            class Mode(int):
+                ADD = 0
+                MULTIPLY = 1
+                DIVIDE = 2
 
-        class Pulse(str):
+        class Pulse(int):
             pass
 
-            class TargetType(str):
-                CHANNEL = "a0"
-                GROUP = "a1"
+            class TargetType(int):
+                CHANNEL = 0
+                GROUP = 1
 
-        class Sequence(str):
+        class Sequence(int):
             pass
 
-            class Mode(str):
-                STOP = "a0"
-                LOOP = "a1"
-                LAST = "a2"
+            class Mode(int):
+                STOP = 0
+                LOOP = 1
+                LAST = 2
 
-        class Sfx(str):
+        class Sfx(int):
             pass
 
-            class Direction(str):
-                CIRCULAR = "a0"
-                HORIZONTAL = "a1"
-                LEFT = "a2"
-                RIGHT = "a3"
-                VERTICAL = "a4"
-                DOWN = "a5"
-                UP = "a6"
+            class Direction(int):
+                CIRCULAR = 0
+                HORIZONTAL = 1
+                LEFT = 2
+                RIGHT = 3
+                VERTICAL = 4
+                DOWN = 5
+                UP = 6
 
-            class Reverb(str):
-                GENERIC = "a0"
-                PADDED_CELL = "a1"
-                ROOM = "a2"
-                BATH_ROOM = "a3"
-                LIVING_ROOM = "a4"
-                STONE_ROOM = "a5"
-                AUDITORIUM = "a6"
-                CONCERT_HALL = "a7"
-                CAVE = "a8"
-                ARENA = "a9"
-                HANGAR = "a10"
-                STONE_CORRIDOR = "a11"
-                ALLEY = "a12"
-                FOREST = "a13"
-                CITY = "a14"
-                MOUNTAINS = "a15"
-                QUARRY = "a16"
-                PLAIN = "a17"
-                PARKING_LOT = "a18"
-                SEWER_PIPE = "a19"
-                UNDER_WATER = "a20"
+            class Reverb(int):
+                GENERIC = 0
+                PADDED_CELL = 1
+                ROOM = 2
+                BATH_ROOM = 3
+                LIVING_ROOM = 4
+                STONE_ROOM = 5
+                AUDITORIUM = 6
+                CONCERT_HALL = 7
+                CAVE = 8
+                ARENA = 9
+                HANGAR = 10
+                STONE_CORRIDOR = 11
+                ALLEY = 12
+                FOREST = 13
+                CITY = 14
+                MOUNTAINS = 15
+                QUARRY = 16
+                PLAIN = 17
+                PARKING_LOT = 18
+                SEWER_PIPE = 19
+                UNDER_WATER = 20
 
-        class Shader(str):
+        class Shader(int):
             pass
 
-            class Layer(str):
-                BG = "a1"
-                MG = "a2"
-                B5 = "a3"
-                B4 = "a4"
-                B3 = "a5"
-                B2 = "a6"
-                B1 = "a7"
-                P = "a8"
-                T1 = "a9"
-                T2 = "a10"
-                T3 = "a11"
-                T4 = "a12"
-                G = "a13"
-                UI = "a14"
-                MAX = "a15"
+            class Layer(int):
+                BG = 1
+                MG = 2
+                B5 = 3
+                B4 = 4
+                B3 = 5
+                B2 = 6
+                B1 = 7
+                P = 8
+                T1 = 9
+                T2 = 10
+                T3 = 11
+                T4 = 12
+                G = 13
+                UI = 14
+                MAX = 15
 
-        class Song(str):
+        class Song(int):
             pass
 
-            class Direction(str):
-                CIRCULAR = "a0"
-                HORIZONTAL = "a1"
-                LEFT = "a2"
-                RIGHT = "a3"
-                VERTICAL = "a4"
-                DOWN = "a5"
-                UP = "a6"
+            class Direction(int):
+                CIRCULAR = 0
+                HORIZONTAL = 1
+                LEFT = 2
+                RIGHT = 3
+                VERTICAL = 4
+                DOWN = 5
+                UP = 6
 
-        class StaticCamera(str):
+        class StaticCamera(int):
             pass
 
-            class Axis(str):
-                NONE = "a0"
-                X = "a1"
-                Y = "a2"
+            class Axis(int):
+                NONE = 0
+                X = 1
+                Y = 2
 
-        class Stop(str):
+        class Stop(int):
             pass
 
-            class Mode(str):
-                STOP = "a0"
-                PAUSE = "a1"
-                RESUME = "a2"
+            class Mode(int):
+                STOP = 0
+                PAUSE = 1
+                RESUME = 2
 
-        class Teleport(str):
+        class Teleport(int):
             pass
 
-            class Gravity(str):
-                NONE = "a0"
-                NORMAL = "a1"
-                FLIPPED = "a2"
-                TOGGLE = "a3"
+            class Gravity(int):
+                NONE = 0
+                NORMAL = 1
+                FLIPPED = 2
+                TOGGLE = 3
 
-        class Touch(str):
+        class Touch(int):
             pass
 
-            class Mode(str):
-                FLIP = "a0"
-                ON = "a1"
-                OFF = "a2"
+            class Mode(int):
+                FLIP = 0
+                ON = 1
+                OFF = 2
 
-            class OnlyPlayer(str):
-                NONE = "a0"
-                P1 = "a1"
-                P2 = "a2"
+            class OnlyPlayer(int):
+                NONE = 0
+                P1 = 1
+                P2 = 2
 
-        class Ui(str):
+        class Ui(int):
             pass
 
-            class RefX(str):
-                AUTO = "a1"
-                CENTER = "a2"
-                LEFT = "a3"
-                RIGHT = "a4"
+            class RefX(int):
+                AUTO = 1
+                CENTER = 2
+                LEFT = 3
+                RIGHT = 4
 
-            class RefY(str):
-                AUTO = "a1"
-                CENTER = "a2"
-                BOTTOM = "a3"
-                TOP = "a4"
+            class RefY(int):
+                AUTO = 1
+                CENTER = 2
+                BOTTOM = 3
+                TOP = 4
 
-    class ZLayer(str):
-        B5 = "a-5"
-        B4 = "a-3"
-        B3 = "a-1"
-        DEFAULT = "a0"
-        B2 = "a1"
-        B1 = "a3"
-        T1 = "a5"
-        T2 = "a7"
-        T3 = "a9"
-        T4 = "a11"
+    class ZLayer(int):
+        B5 = -5
+        B4 = -3
+        B3 = -1
+        DEFAULT = 0
+        B2 = 1
+        B1 = 3
+        T1 = 5
+        T2 = 7
+        T3 = 9
+        T4 = 11

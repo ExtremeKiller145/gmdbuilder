@@ -18,7 +18,6 @@ class Node:
 IMPORT_LINE_RE = re.compile(r"^\s*(from\s+|import\s+)")
 BAD_CLASS_CHARS_RE = re.compile(r"[^A-Za-z0-9_]")
 SPLIT_WORDS_RE = re.compile(r"[^A-Za-z0-9]+")
-INT_RE = re.compile(r"^[+-]?\d+$")
 
 
 def is_pycache(p: Path) -> bool:
@@ -38,73 +37,6 @@ def to_class_name(raw: str) -> str:
     return name
 
 
-def rewrite_assignment_line(line: str, prefix: str) -> str:
-    """
-    Rewrite:
-      NAME = 193              -> NAME = "a193"
-    Skip rewriting if RHS is already quoted ("..." or '...').
-
-    Keeps any trailing inline comment:
-      NAME = 193  # foo       -> NAME = "a193"  # foo
-    """
-    if "=" not in line:
-        return line
-
-    left, right = line.split("=", 1)
-
-    # Basic sanity: if left side doesn't look like an identifier assignment, leave it
-    left_stripped = left.strip()
-    if not left_stripped or not left_stripped.replace("_", "A").isalnum():
-        return line
-
-    # Separate trailing comment from RHS while respecting that strings might contain '#'
-    # We only treat '#' as comment if it's not inside quotes. We'll do a small state scan.
-    rhs = right.rstrip("\n")
-    comment = ""
-    in_squote = False
-    in_dquote = False
-    for i, ch in enumerate(rhs):
-        if ch == "'" and not in_dquote:
-            in_squote = not in_squote
-        elif ch == '"' and not in_squote:
-            in_dquote = not in_dquote
-        elif ch == "#" and not in_squote and not in_dquote:
-            comment = rhs[i:]  # includes '#'
-            rhs = rhs[:i]
-            break
-
-    value = rhs.strip()
-
-    if not value:
-        return line
-
-    # Already a quoted string literal? leave unchanged
-    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-        return line
-
-    # Only rewrite plain integer literals
-    if not INT_RE.match(value):
-        return line
-
-    new_value = f'"{prefix}{value}"'
-
-    # Preserve original spacing around '=' by reusing left and keeping rhs spacing minimal
-    # Keep any original spacing before comment by adding one space if needed
-    rebuilt = f"{left}={right[:0]}{new_value}"
-    # But we lost original spacing after '='. Reconstruct it: keep original prefix spaces from right.
-    # right begins with original spaces after '='
-    after_eq_ws = ""
-    j = 0
-    while j < len(right) and right[j].isspace() and right[j] != "\n":
-        after_eq_ws += right[j]
-        j += 1
-    rebuilt = f"{left}={after_eq_ws}{new_value}"
-    if comment:
-        # preserve at least one space before comment if original had it
-        if not (rebuilt.endswith(" ") or comment.startswith(" ")):
-            rebuilt += " "
-        rebuilt += comment.rstrip()
-    return rebuilt.rstrip()
 
 
 def collect_member_lines(py_text: str, prefix: str) -> List[str]:
@@ -113,7 +45,7 @@ def collect_member_lines(py_text: str, prefix: str) -> List[str]:
         if IMPORT_LINE_RE.match(line):
             continue
         if "=" in line:
-            lines.append(rewrite_assignment_line(line.rstrip(), prefix))
+            lines.append(line.rstrip())
     return lines
 
 
