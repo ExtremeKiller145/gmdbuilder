@@ -17,94 +17,69 @@ _export_path: str | Path | None = None
 _live_editor: LiveEditor | None = None
 _live_editor_connected: bool = False
 
-def from_file(cls, file_path: str | Path):
+def from_file(file_path: str | Path):
     """Load level from .gmd file"""
-    cls._kit_level = KitLevel.from_file(str(file_path))
-    cls._load_objects_from_kit()
+    _kit_level = KitLevel.from_file(str(file_path))
+    _load_objects_from_kit()
 
-def from_live_editor(cls, url: str | None = None):
+def from_live_editor(url: str | None = None):
     """
     Load level from WSLiveEditor, iAndyHD3's Geode Mod.
     Github Link: https://github.com/iAndyHD3/WSLiveEditor
     """
-    cls._live_editor = LiveEditor(url or WEBSOCKET_URL_DEFAULT)
-    cls._live_editor.connect()
-    cls._live_editor_connected = True
+    _live_editor = LiveEditor(url or WEBSOCKET_URL_DEFAULT)
+    _live_editor.connect()
+    _live_editor_connected = True
 
-def _load_objects_from_kit(cls) -> None:
+def _load_objects_from_kit():
     """Internal: Load objects from kit level into typed dict format"""
-    if cls._kit_level is None:
+    if _kit_level is None:
         raise RuntimeError("No level loaded")
     
-    cls.object_queue: list[ObjectType] = []
-    for kit_obj in cls._kit_level.objects:
+    objects: list[ObjectType] = []
+    for kit_obj in _kit_level.objects:
         # Convert int keys to 'a<int>' string keys
         typed_obj: ObjectType = {} # type: ignore
         for int_key, value in kit_obj.items():
             str_key = f"a{int_key}"
             typed_obj[str_key] = value
-        cls.objects.append(typed_obj)
-
-def export(cls, file_path: str | Path | None = None) -> None:
+        objects.append(typed_obj)
+object_queue = []
+def export(file_path: str | Path | None = None):
     """Export level to file or live editor.
 
     Args:
         file_path: Path to save to. Will override the source path if not given.
     """
-    if cls._kit_level is None and not cls._live_editor_connected:
+    if _kit_level is None and not _live_editor_connected:
         raise RuntimeError("No level loaded. Use Level.from_file() or Level.from_live_editor() first")
     
-    for obj in cls.object_queue:
+    for obj in object_queue:
         for resolve in obj.get('_pending_validations', []):
             try:
-                resolve(cls.objects, cls.object_queue)
+                resolve(objects, object_queue)
             except ValidationError as e:
                 raise ValidationError(f"Validation failed for queued object: {e}")
-        cls.objects.append(obj)
-    cls.object_queue.clear()
+        objects.append(obj)
+    object_queue.clear()
     
     if file_path:
-        cls._export_to_file(str(file_path))
-    elif cls._live_editor_connected:
-        cls._export_to_live_editor()
+        _export_to_file(str(file_path))
+    elif _live_editor_connected:
+        _export_to_live_editor()
     else:
         raise RuntimeError("No export destination. Provide file_path or use Level.from_live_editor()")
 
-def _export_to_file(cls, file_path: str) -> None:
+def _export_to_file(file_path: str) -> None:
     """Internal: Save to .gmd file"""
-    if cls._kit_level is None:
+    if _kit_level is None:
         raise RuntimeError("Cannot export to file without loaded level")
     
-    cls._sync_objects_to_kit()
-    cls._kit_level.to_file(file_path)
-
-def _export_to_live_editor(cls) -> None:
-    """Internal: Send to WSLiveEditor"""
-    if cls._live_editor is None:
-        raise RuntimeError("Live editor not connected")
-    
-    # Convert typed dicts back to int keys and create kit objects
-    kit_objects = KitObjectList()
-    for obj in cls.objects:
-        kit_obj_dict = {}
-        for str_key, value in obj.items():
-            if str_key.startswith('a') and len(str_key) > 1:
-                int_key = int(str_key[1:])
-                kit_obj_dict[int_key] = value
-        
-        kit_obj = KitObject()
-        kit_obj.update(kit_obj_dict)
-        kit_objects.append(kit_obj)
-    
-    cls._live_editor.add_objects(kit_objects)
-
-def _sync_objects_to_kit(cls) -> None:
-    """Internal: Sync typed dicts back to kit level"""
-    if cls._kit_level is None:
+    if _kit_level is None:
         raise RuntimeError("No level loaded")
     
     kit_objects = KitObjectList()
-    for obj in cls.objects:
+    for obj in objects:
         # Convert 'a<int>' keys back to int keys
         kit_obj_dict = {}
         for str_key, value in obj.items():
@@ -116,5 +91,26 @@ def _sync_objects_to_kit(cls) -> None:
         kit_obj.update(kit_obj_dict)
         kit_objects.append(kit_obj)
     
-    cls._kit_level.objects = kit_objects
+    _kit_level.objects = kit_objects
+    _kit_level.to_file(file_path)
+
+def _export_to_live_editor():
+    """Internal: Send to WSLiveEditor"""
+    if _live_editor is None:
+        raise RuntimeError("Live editor not connected")
+    
+    # Convert typed dicts back to int keys and create kit objects
+    kit_objects = KitObjectList()
+    for obj in objects:
+        kit_obj_dict = {}
+        for str_key, value in obj.items():
+            if str_key.startswith('a') and len(str_key) > 1:
+                int_key = int(str_key[1:])
+                kit_obj_dict[int_key] = value
+        
+        kit_obj = KitObject()
+        kit_obj.update(kit_obj_dict)
+        kit_objects.append(kit_obj)
+    
+    _live_editor.add_objects(kit_objects)
 
