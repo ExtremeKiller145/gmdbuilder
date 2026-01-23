@@ -1,15 +1,16 @@
 
+from gmdbuilder.object_types import ObjectType
 
-validate_solid_targets: bool = True
-"""
-Checks that no transforming trigger targets non-trigger visible groups
-
-(move, rotate, follow, etc. but NOT spawn, toggle, count, etc.)
-"""
-validate_target_exists: bool = True
+property_range_check: bool = True
+"""Checks that all property value ranges are correct as they are given"""
+property_type_check: bool = True
+"""Checks that all property value types are correct as they are given"""
+export_target_exists_check: bool = True
 """Checks that all targets referenced by triggers actually exist"""
-validate_spawn_limit: bool = True
-"""Check for any spawn-limit occurrance within trigger execution chains"""
+export_solid_target_check: bool = True
+"""Checks that visual-related triggers target non-trigger & visible groups/objects"""
+export_spawn_limit_check: bool = True
+"""Checks for any spawn-limit occurrance within trigger execution chains"""
 
 
 class ValidationError(Exception):
@@ -30,21 +31,13 @@ class ValidationError(Exception):
         return msg
 
 
-
-def _validate_color(value: Any) -> None:
-    if not isinstance(value, str):
-        raise ValidationError(f"HSV color must be string, got {type(value)}")
-
-
-def _validate_target_exists(target_id: int, level: Any) -> None:
-    """Deferred: Check that target group exists in level"""
+def validate(key: str, value: Any):
+    """immediate validation. to be called by 'level.objects' mutations"""
+    if not property_type_check:
+        return
     pass
 
 
-def validate(key: str, value: Any) -> None:
-    """immediate validation"""
-    pass
-
-
-def export_validation(level: Any) -> None:
+def export_validation(final_object_list: list[ObjectType]):
+    """to be called in level.export"""
     pass

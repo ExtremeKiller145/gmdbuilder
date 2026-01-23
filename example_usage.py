@@ -23,8 +23,8 @@ level.objects.delete_tagged() # delets all with group 9999.
 
 # globally sets all validations to True. users will prob barely touch these ever so its a project global
 validation.export_spawn_limit_check = False # disable check
-validation.property_type_validation = True # no change, already true by default
-validation.property_range_validation = True # no change, already true by default
+validation.property_type_check = True # no change, already true by default
+validation.property_range_check = True # no change, already true by default
 
 
 all_objects = level.objects # can be mutated any way, but changes are intercepted and validated first
@@ -77,6 +77,4 @@ level.objects.append(my_custom_move2(1,4,30))
 # Choose 
 level.export("example_updated.gmd") # adds all objects from level.objects. If not given and in file mode, ask to overwrite the file taken from the 'from_file' call
 level.export() # for live_editor, adds all object in queue and clears queue.
-
-
 
