@@ -1,31 +1,31 @@
 
-class ObjId(str):
+class ObjId(int):
     LEVEL_START = 0
     TEXT = 914
     ITEM_LABEL = 1615
     PARTICLE_OBJECT = 2065
 
-    class Collectible(str):
+    class Collectible(int):
         SECRET_COIN = 142
         KEY = 1275
         USER_COIN = 1329
         SMALL_COIN = 1614
 
-    class Deprecated(str):
+    class Deprecated(int):
         OLD_COLOR_LINE = 104
         OLD_COLOR_1 = 221
         OLD_COLOR_2 = 717
         OLD_COLOR_3 = 718
         OLD_COLOR_4 = 734
 
-    class Modifier(str):
+    class Modifier(int):
         WAVE_COLLISION = 1755
         STOP_JUMP = 1813
         STOP_DASH = 1829
         HEAD_COLLISION = 1859
         GRAVITY_FLIP = 2866
 
-    class Orb(str):
+    class Orb(int):
         YELLOW = 36
         BLUE = 84
         PINK = 141
@@ -38,14 +38,14 @@ class ObjId(str):
         SPIDER = 3004
         TELEPORT = 3027
 
-    class Pad(str):
+    class Pad(int):
         YELLOW = 35
         BLUE = 67
         PINK = 140
         RED = 1332
         SPIDER = 3005
 
-    class Portal(str):
+    class Portal(int):
         GRAVITY_NORMAL = 10
         GRAVITY_INVERTED = 11
         CUBE = 12
@@ -64,19 +64,19 @@ class ObjId(str):
         SWING = 1933
         GRAVITY_TOGGLE = 2926
 
-        class Teleport(str):
+        class Teleport(int):
             LINKED = 747
             EXIT = 2064
             ENTER = 2902
 
-    class Speed(str):
+    class Speed(int):
         SLOW = 200
         NORMAL = 201
         FAST = 202
         VERY_FAST = 203
         SUPER_FAST = 1334
 
-    class Trigger(str):
+    class Trigger(int):
         START_POSITION = 31
         TRAIL_ENABLE = 32
         TRAIL_DISABLE = 33
@@ -160,7 +160,7 @@ class ObjId(str):
         RETARGET_ADV_FOLLOW = 3661
         LINK_VISIBLE = 3662
 
-        class Area(str):
+        class Area(int):
             MOVE = 3006
             ROTATE = 3007
             SCALE = 3008
@@ -173,7 +173,7 @@ class ObjId(str):
             EDIT_TINT = 3015
             STOP = 3024
 
-        class Enter(str):
+        class Enter(int):
             MOVE = 3017
             ROTATE = 3018
             SCALE = 3019
@@ -181,7 +181,7 @@ class ObjId(str):
             TINT = 3021
             STOP = 3023
 
-        class EnterPreset(str):
+        class EnterPreset(int):
             FADE_ONLY = 22
             FADE_BOTTOM = 23
             FADE_TOP = 24
@@ -196,14 +196,14 @@ class ObjId(str):
             HALF_INVERT = 59
             NO_FADE = 1915
 
-        class OldColor(str):
+        class OldColor(int):
             GROUND = 29
             BACKGROUND = 30
             OUTLINE = 105
             GROUND_2 = 900
             LINE = 915
 
-        class Shader(str):
+        class Shader(int):
             OPTIONS = 2904
             SHOCKWAVE = 2905
             SHOCKLINE = 2907
