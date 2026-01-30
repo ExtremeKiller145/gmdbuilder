@@ -23,11 +23,11 @@ def from_file(file_path: str | Path) -> None:
     if not path.exists():
         raise FileNotFoundError(f"Level file not found: {file_path}")
     
-    _kit_level = KitLevel.from_file(str(path))
+    _kit_level = KitLevel.from_file(str(path)) # type: ignore
     _source_file = path
     
     for kit_obj in _kit_level.objects: # type: ignore
-        obj = from_raw_object(kit_obj, bypass_check=True)
+        obj = from_raw_object(kit_obj, bypass_check=True) # type: ignore
         
         if g := obj.get(ObjProp.GROUPS):
             obj[ObjProp.GROUPS] = set(g)
@@ -152,7 +152,7 @@ def export(file_path: str | Path | None = None) -> None:
     for obj in objects:
         raw_dict = to_raw_object(obj)
         kit_obj = KitObject(raw_dict)
-        kit_objects.append(kit_obj)
+        kit_objects.append(kit_obj) # type: ignore
     
     _kit_level.objects = kit_objects #type: ignore
-    _kit_level.to_file(str(export_path))
+    _kit_level.to_file(str(export_path)) # type: ignore

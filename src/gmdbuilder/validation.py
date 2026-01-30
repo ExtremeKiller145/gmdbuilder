@@ -16,11 +16,13 @@ class setting:
     """Checks for any spawn-limit occurrance within trigger execution chains"""
 
 
-class ValidatedObject(dict):
+class ValidatedObject(dict[str, Any]):
     """
+    WARNING! DONT USE DIRECTLY. THIS IS FOR LIBRARY IMPLEMENTATION
+    
     The actual dict implementation hidden behind the ObjectType TypedDict
     
-    This is to intercept & validate mutations of objects and add new helpers
+    This is to intercept & validate mutations of objects and add new helpers.
     """
     __slots__ = ("_obj_id",)
 
@@ -35,20 +37,32 @@ class ValidatedObject(dict):
             self._obj_id = int(v)
         super().__setitem__(k, v)
 
-    def update(self, *args, **kwargs) -> None:
-        items = dict(*args, **kwargs)
+    def update(self, *args: Any, **kwargs: Any) -> None:  # type: ignore[override]
+        # Construct items dict from args and kwargs
+        items: dict[str, Any]
+        if args:
+            if len(args) != 1:
+                raise TypeError(f"update() takes at most 1 positional argument ({len(args)} given)")
+            __m = args[0]
+            items = dict(__m)  # type: ignore[arg-type]
+            items.update(kwargs)
+        else:
+            items = dict(kwargs)
+        
         for k, v in items.items():
             validate(self._obj_id, k, v)
+        if id := items.get(ObjProp.ID):
+            self._obj_id = int(id)
         super().update(items)
 
 
 class ValidationError(Exception):
     def __init__(self, msg: str, deferred: bool = False):
         self.deferred = deferred
-        self.context = {}
+        self.context: dict[str, Any] = {}
         super().__init__(msg)
     
-    def add_context(self, **kwargs):
+    def add_context(self, **kwargs: Any) -> "ValidationError":
         self.context.update(kwargs)
         return self
     
@@ -66,11 +80,11 @@ ID_TO_TYPEDDICT = {
     3016: AdvFollowType,
 }
 
-def typeddict_keys(td) -> set[str]:
-    return set(getattr(td, "__required_keys__", set())) | set(getattr(td, "__optional_keys__", set()))
+# def typeddict_keys(td) -> set[str]:
+#     return set(getattr(td, "__required_keys__", set())) | set(getattr(td, "__optional_keys__", set()))
 
-DEFAULT_ALLOWED = typeddict_keys(ObjectType)
-ALLOWED_BY_ID = {k: typeddict_keys(v) for k, v in ID_TO_TYPEDDICT.items()}
+# DEFAULT_ALLOWED = typeddict_keys(ObjectType)
+# ALLOWED_BY_ID = {k: typeddict_keys(v) for k, v in ID_TO_TYPEDDICT.items()}
 
 
 def validate_obj(obj: ObjectType):
@@ -79,8 +93,7 @@ def validate_obj(obj: ObjectType):
 def validate(obj_id: int, key: str, v: Any):
     """immediate validation. to be called by 'level.objects' mutations"""
     # raise NotImplementedError()
-    if not setting.immediate_property_type_check:
-        return
+    if not setting.immediate_property_type_check: return
     
     match key:
         case ObjProp.ID:

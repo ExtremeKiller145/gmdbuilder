@@ -25,7 +25,7 @@ dev = [
 where = ["src"]
 
 [tool.basedpyright]
-typeCheckingMode = "standard"
+typeCheckingMode = "strict"
 reportAny = "none"
 reportExplicitAny = "none"
 # ignore = ["**/venv/**", "**/site-packages/**"]
