@@ -1,15 +1,16 @@
 """Level loading and exporting for Geometry Dash."""
 
 from pathlib import Path
-from typing import Iterator
+from typing import Any, Callable, Iterator
 from questionary import confirm
 from gmdkit.models.level import Level as KitLevel
 
-from gmdbuilder.object_types import ObjectList, ObjectType
+from gmdbuilder.object_types import ObjectType
 from gmdbuilder.core import from_raw_object, to_raw_object
 
 
-tag_group = 9999
+MatchCondition = ObjectType | dict[str, Any] | Callable[[ObjectType], bool]
+objects: list[ObjectType] = []
 _kit_level: KitLevel | None = None
 _source_file: Path | None = None
 
@@ -24,13 +25,12 @@ def from_file(file_path: str | Path) -> None:
     _kit_level = KitLevel.from_file(str(path))
     _source_file = path
     
-    objects = ObjectList()
-    for kit_obj in _kit_level.objects:
+    for kit_obj in _kit_level.objects: # type: ignore
         obj = from_raw_object(kit_obj)
         objects.append(obj)
 
 
-class next():
+class new():
     """Return the next free ID for group, item, color, collision, control IDs."""
     _initialized = False
     _group_iter: Iterator[int] | None = None
@@ -44,38 +44,66 @@ class next():
         cls._initialized = True
         ...
     
-    def _next(cls, iterator: Iterator[int], id_type: str) -> int:
+    @classmethod
+    def _get_next(cls, iterator: Iterator[int] | None, id_type: str) -> int:
         if not cls._initialized:
             cls._register_free_ids()
+        if iterator is None:
+            raise RuntimeError(f"Iterator for {id_type} IDs is not initialized")
         try:
             return next(iterator)
         except StopIteration:
             raise RuntimeError(f"No free {id_type} IDs available")
     
     @classmethod
-    def group(cls, count: int = 1) -> tuple[int,...]:
+    def group(cls) -> int:
         """Get next free group ID (1-9999)."""
-        return (cls._get_next(cls._group_iter, "group") for _ in range(count))
+        return cls._get_next(cls._group_iter, "group")
     
     @classmethod
-    def item(cls, count: int = 1) -> tuple[int,...]:
+    def item(cls) -> int:
         """Get next free item ID (1-9999)."""
-        return (cls._get_next(cls._item_iter, "item") for _ in range(count))
+        return cls._get_next(cls._item_iter, "item")
     
     @classmethod
-    def color(cls, count: int = 1) -> tuple[int,...]:
+    def color(cls) -> int:
         """Get next free color ID (1-9999)."""
-        return (cls._get_next(cls._color_iter, "color") for _ in range(count))
+        return cls._get_next(cls._color_iter, "color")
     
     @classmethod
-    def collision(cls, count: int = 1) -> tuple[int,...]:
+    def collision(cls) -> int:
         """Get next free collision block ID (1-9999)."""
-        return (cls._get_next(cls._collision_iter, "collision") for _ in range(count))
+        return cls._get_next(cls._collision_iter, "collision")
     
     @classmethod
-    def control(cls, count: int = 1) -> tuple[int,...]:
+    def control(cls) -> int:
         """Get next free control ID (1-9999)."""
-        return (cls._get_next(cls._control_iter, "control") for _ in range(count))
+        return cls._get_next(cls._control_iter, "control")
+    
+    @classmethod
+    def group_multi(cls, count: int) -> tuple[int,...]:
+        """Get next free group ID (1-9999)."""
+        return tuple(cls._get_next(cls._group_iter, "group") for _ in range(count))
+    
+    @classmethod
+    def item_multi(cls, count: int) -> tuple[int,...]:
+        """Get next free item ID (1-9999)."""
+        return tuple(cls._get_next(cls._item_iter, "item") for _ in range(count))
+    
+    @classmethod
+    def color_multi(cls, count: int) -> tuple[int,...]:
+        """Get next free color ID (1-9999)."""
+        return tuple(cls._get_next(cls._color_iter, "color") for _ in range(count))
+    
+    @classmethod
+    def collision_multi(cls, count: int) -> tuple[int,...]:
+        """Get next free collision block ID (1-9999)."""
+        return tuple(cls._get_next(cls._collision_iter, "collision") for _ in range(count))
+    
+    @classmethod
+    def control_multi(cls, count: int = 1) -> tuple[int,...]:
+        """Get next free control ID (1-9999)."""
+        return tuple(cls._get_next(cls._control_iter, "control") for _ in range(count))
     
     @classmethod
     def reset_all(cls):
@@ -121,6 +149,5 @@ def export(file_path: str | Path | None = None) -> None:
         kit_obj = KitObject(raw_dict)
         kit_objects.append(kit_obj)
     
-    # Update level objects
-    _kit_level.objects = kit_objects
+    _kit_level.objects = kit_objects #type: ignore
     _kit_level.to_file(str(export_path))

@@ -1,6 +1,8 @@
 """Core utilities for working with ObjectType dicts."""
 
-from typing import Any, Literal, overload
+from typing import Any, Literal, cast, overload
+from gmdbuilder.validation import ValidatedObject, setting
+from gmdbuilder.internal_mappings.obj_id import ObjId
 from gmdkit.models.object import Object as KitObject
 from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType
 
@@ -15,12 +17,9 @@ def to_raw_object(obj: ObjectType) -> dict[int, Any]:
     
     for key, value in obj.items():
         if isinstance(key, str):
-            try:
-                assert key.startswith('a')
+            if key.startswith('a'):
                 int_key = int(key[1:])
                 raw[int_key] = value
-            except (AssertionError, ValueError):
-                raise TypeError(f"Can't convert object with invalid non-'a<int>' keys: \n{obj}")
         else:
             raw[key] = value
     
@@ -37,16 +36,19 @@ def from_raw_object(raw_obj: dict[int, Any]) -> ObjectType:
     converted: ObjectType = { 'a1': -1 }
     
     for key, value in raw_obj.items():
-        if isinstance(key, int):
-            str_key = f'a{key}'
-            converted[str_key] = value
-        else:
+        if not isinstance(key, int):
             raise TypeError(f"Can't convert object with invalid non-int keys: \n{raw_obj}")
+        
+        converted[f'a{key}'] = value
     
-    if converted['a1'] == -1:
+    if int(converted['a1']) == -1:
         raise TypeError("Missing required Object ID key 1 in raw object")
     
-    return converted
+    if setting.export_solid_target_check:
+        wrapped = ValidatedObject(converted['a1'])
+        wrapped.update(converted)
+        return cast(ObjectType, wrapped)
+    return cast(ObjectType, converted)
 
 
 def from_object_string(obj_string: str) -> ObjectType:
@@ -79,4 +81,11 @@ def new_object(object_id: int) -> ObjectType:
         ObjectType dict with default properties (using 'a<num>' keys)
     """
     # Convert from gmdkit's {1: val, 2: val} to our {'a1': val, 'a2': val}
-    return from_raw_object(KitObject.default(object_id))
+    obj = from_raw_object(KitObject.default(object_id))
+    match object_id:
+        case ObjId.Trigger.MOVE:
+            return cast(MoveType, obj)
+        case ObjId.Trigger.ROTATE:
+            return cast(RotateType, obj)
+        case _:
+            return cast(ObjectType, obj)
