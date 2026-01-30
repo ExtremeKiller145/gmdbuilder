@@ -1,33 +1,52 @@
 """Core utilities for working with ObjectType dicts."""
 
+from functools import lru_cache
 from typing import Any, Literal, cast, overload
 from gmdbuilder.internal_mappings.obj_prop import ObjProp
 from gmdbuilder.validation import ValidatedObject, setting
-from gmdbuilder.internal_mappings.obj_id import ObjId
 from gmdkit.models.object import Object as KitObject
 from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType
 
-def to_raw_object(obj: ObjectType) -> dict[int, Any]:
+
+@lru_cache(maxsize=1024)
+def _to_raw_key_cached(key: object) -> int | str:
+    if isinstance(key, int):
+        return key
+    if not isinstance(key, str):
+        raise ValueError()
+    if key.startswith('k'):
+        return key
+    if key.startswith('a'):
+        tail = key[1:]
+        if tail.isdigit():
+            return int(tail)
+    raise ValueError()
+
+def to_raw_object(obj: ObjectType) -> dict[int|str, Any]:
     """
     Convert ObjectType to raw int-keyed dict for gmdkit or debugging.
     
     Example:
         {'a1': 900, 'a2': 50} → {1: 900, 2: 50}
     """
-    raw: dict[int, Any] = {}
-    
+    raw: dict[int|str, Any] = {}
     for key, value in obj.items():
-        if isinstance(key, str):
-            if key.startswith('a'):
-                int_key = int(key[1:])
-                raw[int_key] = value
-        else:
-            raw[key] = value
-    
+        try:
+            raw[_to_raw_key_cached(key)] = value
+        except ValueError as e:
+            raise ValueError(f"Object has bad/unsupported key {key!r}: {obj=}") from e
     return raw
 
 
-def from_raw_object(raw_obj: dict[int, Any], bypass_check: bool = False) -> ObjectType:
+@lru_cache(maxsize=1024)
+def _from_raw_key_cached(key: object) -> str:
+    if isinstance(key, int):
+        return f"a{key}"
+    if isinstance(key, str) and (key.startswith("a") or key.startswith("k")):
+        return key
+    raise ValueError()
+
+def from_raw_object(raw_obj: dict[int|str, Any], bypass_check: bool = False) -> ObjectType:
     """
     Convert raw int-keyed dict from gmdkit to ObjectType.
     
@@ -37,19 +56,19 @@ def from_raw_object(raw_obj: dict[int, Any], bypass_check: bool = False) -> Obje
     converted: ObjectType = { ObjProp.ID: -1 }
     
     for key, value in raw_obj.items():
-        if not isinstance(key, int):
-            raise TypeError(f"Can't convert object with invalid non-int keys: \n{raw_obj}")
-        
-        converted[f'a{key}'] = value
+        try:
+            converted[_from_raw_key_cached(key)] = value
+        except ValueError as e:
+            raise ValueError(f"Object has bad/unsupported key {key!r}: {raw_obj=}") from e
     
     if int(converted[ObjProp.ID]) == -1:
-        raise TypeError(f"Missing required Object ID key 1 in raw object: \n{raw_obj}")
+        raise TypeError(f"Missing required Object ID key 1 in raw object: \n{raw_obj=}")
     
     if setting.export_solid_target_check and not bypass_check:
         wrapped = ValidatedObject(converted[ObjProp.ID])
         wrapped.update(converted)
         return cast(ObjectType, wrapped)
-    return cast(ObjectType, converted)
+    return converted
 
 
 def from_object_string(obj_string: str) -> ObjectType:
@@ -60,9 +79,8 @@ def from_object_string(obj_string: str) -> ObjectType:
         obj_string: GD format string like "1,1,2,50,3,45;"
     
     Example:
-        "1,1,2,50,3,45;" → {'a1': 1, 'a2': 50.0, 'a3': 45.0}
+        "1,1,2,50,3,45;" → {'a1': 1, 'a2': 50, 'a3': 45}
     """
-    # Use gmdkit to parse the string
     return from_raw_object(KitObject.from_string(obj_string))
 
 
@@ -82,11 +100,4 @@ def new_object(object_id: int) -> ObjectType:
         ObjectType dict with default properties (using 'a<num>' keys)
     """
     # Convert from gmdkit's {1: val, 2: val} to our {'a1': val, 'a2': val}
-    obj = from_raw_object(KitObject.default(object_id))
-    match object_id:
-        case ObjId.Trigger.MOVE:
-            return cast(MoveType, obj)
-        case ObjId.Trigger.ROTATE:
-            return cast(RotateType, obj)
-        case _:
-            return cast(ObjectType, obj)
+    return from_raw_object(KitObject.default(object_id))
