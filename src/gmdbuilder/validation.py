@@ -1,6 +1,6 @@
 
 from typing import Any
-from gmdbuilder.internal_mappings.obj_prop import ObjProp
+from gmdbuilder.mappings.obj_prop import ObjProp
 from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType
 
 class setting:

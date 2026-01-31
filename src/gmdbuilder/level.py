@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from typing import Iterator, SupportsIndex, cast
-from gmdbuilder.internal_mappings.obj_prop import ObjProp
+from gmdbuilder.mappings.obj_prop import ObjProp
 from questionary import confirm
 from gmdkit.models.level import Level as KitLevel
 

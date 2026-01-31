@@ -2,7 +2,7 @@
 
 from functools import lru_cache
 from typing import Any, Literal, cast, overload
-from gmdbuilder.internal_mappings.obj_prop import ObjProp
+from gmdbuilder.mappings.obj_prop import ObjProp
 from gmdbuilder.validation import ValidatedObject, setting
 from gmdkit.models.object import Object as KitObject
 from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType
@@ -81,7 +81,7 @@ def from_object_string(obj_string: str) -> ObjectType:
     Example:
         "1,1,2,50,3,45;" → {'a1': 1, 'a2': 50, 'a3': 45}
     """
-    return from_raw_object(KitObject.from_string(obj_string))
+    return from_raw_object(KitObject.from_string(obj_string)) # type: ignore
 
 
 @overload
@@ -100,4 +100,4 @@ def new_object(object_id: int) -> ObjectType:
         ObjectType dict with default properties (using 'a<num>' keys)
     """
     # Convert from gmdkit's {1: val, 2: val} to our {'a1': val, 'a2': val}
-    return from_raw_object(KitObject.default(object_id))
+    return from_raw_object(KitObject.default(object_id)) # type: ignore
