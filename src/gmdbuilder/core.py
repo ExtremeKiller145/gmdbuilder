@@ -2,11 +2,10 @@
 
 from functools import lru_cache
 from typing import Any, Literal, cast, overload
-from gmdbuilder.mappings.obj_prop import ObjProp
-from gmdbuilder.validation import Object, setting
 from gmdkit.models.object import Object as KitObject
-from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType
-
+from gmdbuilder.mappings.obj_prop import ObjProp
+from gmdbuilder.validation import setting
+from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType, Object
 
 @lru_cache(maxsize=1024)
 def _to_raw_key_cached(key: object) -> int | str:

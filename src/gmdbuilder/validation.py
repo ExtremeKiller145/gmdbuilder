@@ -23,46 +23,6 @@ class setting:
     """Checks that every group parent is unique (no two parents for 1 ID)"""
 
 
-class Object(dict[str, Any]):
-    """
-    WARNING! DONT USE DIRECTLY. THIS IS FOR LIBRARY IMPLEMENTATION
-    
-    The actual dict implementation hidden behind the ObjectType TypedDict
-    
-    This is to intercept & validate mutations of objects and add new helpers.
-    """
-    __slots__ = ("_obj_id",)
-
-    def __init__(self, obj_id: int):
-        super().__init__()
-        self._obj_id = int(obj_id)
-        super().__setitem__("a1", self._obj_id)
-
-    def __setitem__(self, k: str, v: Any):
-        validate(self._obj_id, k, v)
-        if k == ObjProp.ID:
-            self._obj_id = int(v)
-        super().__setitem__(k, v)
-
-    def update(self, *args: Any, **kwargs: Any):  # type: ignore[override]
-        # Construct items dict from args and kwargs
-        items: dict[str, Any]
-        if args:
-            if len(args) != 1:
-                raise TypeError(f"update() takes at most 1 positional argument ({len(args)} given)")
-            __m = args[0]
-            items = dict(__m)  # type: ignore[arg-type]
-            items.update(kwargs)
-        else:
-            items = dict(kwargs)
-        
-        for k, v in items.items():
-            validate(self._obj_id, k, v)
-        if id := items.get(ObjProp.ID):
-            self._obj_id = int(id)
-        super().update(items)
-
-
 class ValidationError(Exception):
     def __init__(self, msg: str, deferred: bool = False):
         self.deferred = deferred
