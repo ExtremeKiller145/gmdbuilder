@@ -5,6 +5,7 @@ from typing import Any, Literal, cast, overload
 from gmdkit.models.object import Object as KitObject
 from gmdbuilder.mappings.obj_prop import ObjProp
 from gmdbuilder.validation import setting
+from gmdbuilder.futils import translate_group_string, translate_remap_string
 from gmdbuilder.object_types import AdvFollowType, MoveType, ObjectType, RotateType, Object
 
 @lru_cache(maxsize=1024)
@@ -23,15 +24,18 @@ def _to_raw_key_cached(key: object) -> int | str:
 
 def to_raw_object(obj: ObjectType) -> dict[int|str, Any]:
     """
-    Convert ObjectType to raw int-keyed dict for gmdkit or debugging.
+    Convert ObjectType to a new raw int-keyed dict for gmdkit or debugging.
     
     Example:
         {'a1': 900, 'a2': 50} → {1: 900, 2: 50}
     """
     raw: dict[int|str, Any] = {}
     for key, value in obj.items():
-        
-        # add value conversions for special types like remap, group, group parent, etc. back to strings
+        value = cast(Any, value)
+        if key == ObjProp.GROUPS:
+            value = '.'.join(map(str, sorted(value)))
+        elif key == ObjProp.Trigger.Event.EVENTS:
+            value = '.'.join(map(str, sorted(value)))
         
         try:
             raw[_to_raw_key_cached(key)] = value
@@ -50,11 +54,17 @@ def _from_raw_key_cached(key: object) -> str:
 
 def from_raw_object(raw_obj: dict[int|str, Any], bypass_validation: bool = False) -> ObjectType:
     """
-    Convert raw int-keyed dict from gmdkit to ObjectType.
+    Convert raw int-keyed dict from gmdkit to a new ObjectType.
     
     Example:
         {1: 900, 2: 50} → {'a1': 900, 'a2': 50}
     """
+    
+    if (key := ObjProp.GROUPS) in raw_obj:
+        raw_obj[key] = translate_group_string(raw_obj[key])
+    if (key := ObjProp.Trigger.Spawn.REMAPS) in raw_obj:
+        raw_obj[key] = translate_remap_string(raw_obj[key])
+    
     converted: ObjectType = { ObjProp.ID: -1 }
     
     for key, value in raw_obj.items():
@@ -87,8 +97,10 @@ def from_object_string(obj_string: str) -> ObjectType:
 def kit_to_raw_obj(obj: dict[int|str, Any]) -> dict[int|str, Any]:
     """Mutates KitObject for specific props like 'group' to normal representation"""
     
-    if groups := obj.get(ObjProp.GROUPS):
-        obj[ObjProp.GROUPS] = set(groups)
+    if (k := ObjProp.GROUPS) in obj:
+        obj[k] = '.'.join(map(str, sorted(obj[k])))
+    if (k := ObjProp.Trigger.Spawn.REMAPS) in obj:
+        raise ValueError(f"found kit remaps: \n\n{obj[k]=}\n\n")
     
     return obj
 
@@ -109,4 +121,4 @@ def new_object(object_id: int) -> ObjectType:
         ObjectType dict with default properties (using 'a<num>' keys)
     """
     # Convert from gmdkit's {1: val, 2: val} to our {'a1': val, 'a2': val}
-    return from_raw_object(KitObject.default(object_id)) # type: ignore
+    return from_raw_object(kit_to_raw_obj(KitObject.default(object_id))) # type: ignore
