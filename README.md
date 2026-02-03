@@ -8,7 +8,7 @@ A type-safe general-purpose Python framework for pragmatic Geometry Dash level e
 
 gmdbuilder lets you:
 - Read & write Geometry Dash levels
-- Work directly with triggers, groups, and objects - and choose your own type-safe abstractions
+- Work directly with triggers, groups, and objects - and choose your own abstractions
 - Use templates to accelerate development
 - Choose your own level of type safety
 
@@ -20,8 +20,9 @@ gmdbuilder is developed in collaboration with HDanke, the creator of **gmdkit** 
 
 ## Why Python?
 
-Python fits surprisingly well as a language for GD:
+Python fits surprisingly well as a language for GD scripting:
 - Exceptionally good at building/verifying dictionaries (which all GD objects are)
+- Operator overloading for counters and other special logic
 - Any programming paradigm that you want is well supported
 - Reliable type system with good debugger/type-checker tooling
 - Huge package ecosystem
