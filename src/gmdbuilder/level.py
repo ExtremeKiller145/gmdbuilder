@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Iterator
 from questionary import confirm
 from gmdkit.models.level import Level as KitLevel
+from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
 from gmdkit.extra.live_editor import WEBSOCKET_URL, LiveEditor
 
 from gmdbuilder.object_types import ObjectList
@@ -140,63 +141,65 @@ class new():
         cls._control_iter = None
     
 
-def export(*, file_path: str|Path|None = None, batch_size: int = 500) -> None:
-    """Export level to .gmd file or live editor."""
-    global objects, _kit_level, _source_file, _live_editor_connected
+def _validate_and_prepare_objects(validated_objects: ObjectList) -> None:
+    """Run validation and preparation checks on objects before export."""
+    # TODO: Run export validation here
+    # validation.run_export_checks(validated_objects)
     
-    if _kit_level is None and not _live_editor_connected:
+    # TODO: Assign tag_group to new objects here
+    # _assign_tag_groups(validated_objects)
+    pass
+
+
+def _objects_to_kit(validated_objects: ObjectList) -> KitObjectList:
+    """Convert ObjectList to gmdkit ObjectList."""
+    
+    kit_objects = KitObjectList()
+    for obj in validated_objects:
+        kit_objects.append(KitObject(to_raw_object(obj))) #type: ignore
+    return kit_objects
+
+
+def export_to_file(file_path: str | Path | None = None) -> None:
+    """Export level to .gmd file."""
+    global objects, _kit_level, _source_file
+    
+    if _kit_level is None:
         raise RuntimeError("No level loaded. Use level.from_file() first")
     
-    if _live_editor_connected:
-        export_path = None
-    elif file_path is None:
+    # Determine export path
+    if file_path is None:
         if _source_file is None:
             raise RuntimeError("No export path available. Provide file_path argument")
         
         if confirm("Overwrite the source file?", default=False).ask() is False:
             raise RuntimeError("Export cancelled by user")
-        
         export_path = _source_file
     else:
         export_path = Path(file_path)
     
-    # TODO: Run export validation here
-    # validation.run_export_checks(objects)
+    # Validate and prepare objects
+    _validate_and_prepare_objects(objects)
     
-    # TODO: Assign tag_group to new objects here
-    # _assign_tag_groups(objects)
-    
-    
-    if _live_editor_connected:
-        _export_live_editor(batch_size, objects)
-    else:
-        assert export_path is not None
-        _export_file(export_path, objects)
-
-
-def _export_file(file_path: str | Path, validated_objects: ObjectList) -> None:
-    global _kit_level, _source_file, _live_editor_connected
-    
-    from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
-    
-    kit_objects = KitObjectList()
-    for obj in validated_objects:
-        kit_objects.append(KitObject(to_raw_object(obj))) #type: ignore
-    
+    # Convert and export
+    kit_objects = _objects_to_kit(objects)
     _kit_level.objects = kit_objects #type: ignore
-    _kit_level.to_file(str(file_path)) # type: ignore
+    _kit_level.to_file(str(export_path)) #type: ignore
     objects.clear()
 
 
-def _export_live_editor(batch_size: int, validated_objects: ObjectList) -> None:
-    global _kit_level, _source_file, _live_editor_connected
+def export_to_live_editor(*, batch_size: int = 500) -> None:
+    """Export level to live editor."""
+    global objects, _live_editor_connected
     
-    from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
+    if not _live_editor_connected:
+        raise RuntimeError("No live editor connection. Use level.from_live_editor() first")
     
-    kit_objects = KitObjectList()
-    for obj in validated_objects:
-        kit_objects.append(KitObject(to_raw_object(obj))) #type: ignore
+    # Validate and prepare objects
+    _validate_and_prepare_objects(objects)
     
+    # Convert and export
+    kit_objects = _objects_to_kit(objects)
     LiveEditor.add_objects(kit_objects, batch_size) #type: ignore
     LiveEditor.close() #type: ignore
     objects.clear()
