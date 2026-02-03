@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Iterator
 from questionary import confirm
 from gmdkit.models.level import Level as KitLevel
+from gmdkit.extra.live_editor import WEBSOCKET_URL, LiveEditor
 
 from gmdbuilder.object_types import ObjectList
 from gmdbuilder.core import from_raw_object, kit_to_raw_obj, to_raw_object
@@ -13,24 +14,44 @@ objects = ObjectList()
 """List of level's objects."""
 _kit_level: KitLevel | None = None
 _source_file: Path | None = None
+_live_editor_connected = False
 
 def from_file(file_path: str | Path) -> None:
     """Load level from .gmd file into the module-level objects list."""
-    global objects, _kit_level, _source_file
+    global objects, _kit_level, _source_file, _live_editor_connected
+    
+    if _source_file is not None or _live_editor_connected:
+        raise RuntimeError("FORBIDDEN: Level file is loaded! Loading multiple levels at once overrides global state")
     
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"Level file not found: {file_path=}")
     
-    _kit_level = KitLevel.from_file(str(path)) # type: ignore
+    _kit_level = KitLevel.from_file(path) # type: ignore
     _source_file = path
-    
     objects.clear()
     
     for kit_obj in _kit_level.objects: # type: ignore
         obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
         objects.append(obj, bypass_validation=True)
 
+
+def from_live_editor(url: str = WEBSOCKET_URL) -> None:
+    global objects, _kit_level, _source_file, _live_editor_connected
+    
+    if _source_file is not None or _live_editor_connected:
+        raise RuntimeError("FORBIDDEN: Level file is loaded! Loading multiple levels at once overrides global state")
+    
+    objects.clear()
+    _kit_level = LiveEditor(url) # type: ignore
+    _kit_level.connect() # type: ignore
+    _, kit_objects = _kit_level.get_level_string() # type: ignore
+    
+    for kit_obj in kit_objects: # type: ignore
+        obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
+        objects.append(obj, bypass_validation=True)
+    
+    _live_editor_connected = True
 
 class new():
     """Return the next free ID for group, item, color, collision, control IDs."""
@@ -119,14 +140,16 @@ class new():
         cls._control_iter = None
     
 
-def export(file_path: str | Path | None = None) -> None:
-    """Export level to .gmd file."""
-    global objects, _kit_level, _source_file
+def export(*, file_path: str|Path|None = None, batch_size: int = 500) -> None:
+    """Export level to .gmd file or live editor."""
+    global objects, _kit_level, _source_file, _live_editor_connected
     
-    if _kit_level is None:
+    if _kit_level is None and not _live_editor_connected:
         raise RuntimeError("No level loaded. Use level.from_file() first")
     
-    if file_path is None:
+    if _live_editor_connected:
+        export_path = None
+    elif file_path is None:
         if _source_file is None:
             raise RuntimeError("No export path available. Provide file_path argument")
         
@@ -143,14 +166,37 @@ def export(file_path: str | Path | None = None) -> None:
     # TODO: Assign tag_group to new objects here
     # _assign_tag_groups(objects)
     
+    
+    if _live_editor_connected:
+        _export_live_editor(batch_size, objects)
+    else:
+        assert export_path is not None
+        _export_file(export_path, objects)
+
+
+def _export_file(file_path: str | Path, validated_objects: ObjectList) -> None:
+    global _kit_level, _source_file, _live_editor_connected
+    
     from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
     
     kit_objects = KitObjectList()
-    for obj in objects:
-        raw_dict = to_raw_object(obj)
-        kit_obj = KitObject(raw_dict)
-        kit_objects.append(kit_obj) # type: ignore
+    for obj in validated_objects:
+        kit_objects.append(KitObject(to_raw_object(obj))) #type: ignore
     
     _kit_level.objects = kit_objects #type: ignore
-    _kit_level.to_file(str(export_path)) # type: ignore
+    _kit_level.to_file(str(file_path)) # type: ignore
+    objects.clear()
+
+
+def _export_live_editor(batch_size: int, validated_objects: ObjectList) -> None:
+    global _kit_level, _source_file, _live_editor_connected
+    
+    from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
+    
+    kit_objects = KitObjectList()
+    for obj in validated_objects:
+        kit_objects.append(KitObject(to_raw_object(obj))) #type: ignore
+    
+    LiveEditor.add_objects(kit_objects, batch_size) #type: ignore
+    LiveEditor.close() #type: ignore
     objects.clear()
