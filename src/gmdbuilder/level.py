@@ -11,7 +11,7 @@ from gmdbuilder.object_types import ObjectList
 from gmdbuilder.core import from_raw_object, kit_to_raw_obj, to_raw_object
 
 
-objects = ObjectList()
+objects = ObjectList(live_editor=False)
 """List of level's objects."""
 _kit_level: KitLevel | None = None
 _source_file: Path | None = None
@@ -30,7 +30,7 @@ def from_file(file_path: str | Path) -> None:
     
     _kit_level = KitLevel.from_file(path) # type: ignore
     _source_file = path
-    objects.clear()
+    objects = ObjectList(live_editor=False)
     
     for kit_obj in _kit_level.objects: # type: ignore
         obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
@@ -43,7 +43,7 @@ def from_live_editor(url: str = WEBSOCKET_URL) -> None:
     if _source_file is not None or _live_editor_connected:
         raise RuntimeError("FORBIDDEN: Level file is loaded! Loading multiple levels at once overrides global state")
     
-    objects.clear()
+    objects = ObjectList(live_editor=True)
     _kit_level = LiveEditor(url) # type: ignore
     _kit_level.connect() # type: ignore
     _, kit_objects = _kit_level.get_level_string() # type: ignore
@@ -132,7 +132,6 @@ class new():
     @classmethod
     def reset_all(cls):
         """Reset and rescan level objects. Call after significant object changes."""
-        
         cls._initialized = False
         cls._group_iter = None
         cls._item_iter = None
@@ -148,6 +147,7 @@ def _validate_and_prepare_objects(validated_objects: ObjectList) -> None:
     
     # TODO: Assign tag_group to new objects here
     # _assign_tag_groups(validated_objects)
+    validated_objects.sort(key=lambda obj: int(obj.get("a1", 0)))
     pass
 
 
@@ -185,6 +185,7 @@ def export_to_file(file_path: str | Path | None = None) -> None:
     kit_objects = _objects_to_kit(objects)
     _kit_level.objects = kit_objects #type: ignore
     _kit_level.to_file(str(export_path)) #type: ignore
+    new.reset_all()
     objects.clear()
 
 
@@ -202,4 +203,5 @@ def export_to_live_editor(*, batch_size: int = 500) -> None:
     kit_objects = _objects_to_kit(objects)
     LiveEditor.add_objects(kit_objects, batch_size) #type: ignore
     LiveEditor.close() #type: ignore
+    new.reset_all()
     objects.clear()

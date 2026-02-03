@@ -7,16 +7,63 @@
 
 from typing import SupportsIndex, Any, cast
 
+from gmdbuilder.mappings.obj_id import ObjId
 from gmdbuilder.mappings.obj_prop import ObjProp
 from gmdbuilder.validation import validate, validate_obj
-from gmdbuilder.object_typeddict import ObjectType, MoveType, RotateType, AdvFollowType
+import gmdbuilder.object_typeddict as td
+ObjectType = td.ObjectType
 
 
+id = ObjId.Trigger
 ID_TO_TYPEDDICT = {
-    901: MoveType,
-    1346: RotateType,
-    3016: AdvFollowType,
+    id.ALPHA: td.AlphaType,
+    id.ANIMATE: td.AnimateType,
+    id.ANIMATE_KEYFRAME: td.AnimateKeyframeType,
+    id.ARROW: td.ArrowType,
+    id.BPM: td.BpmType,
+    id.ADV_FOLLOW: td.AdvFollowType,
+    id.ADV_RANDOM: td.AdvRandomType,
+    id.COUNT: td.CountType,
+    id.COLOR: td.ColorType,
+    id.COLLISION: td.CollisionType,
+    id.EDIT_ADV_FOLLOW: td.EditAdvFollowType,
+    id.END: td.EndType,
+    id.FOLLOW: td.FollowType,
+    id.FOLLOW_PLAYER_Y: td.FollowPlayerYType,
+    id.GRADIENT: td.GradientType,
+    id.GRAVITY: td.GravityType,
+    id.INSTANT_COLLISION: td.InstantCollisionType,
+    id.INSTANT_COUNT: td.InstantCountType,
+    id.ITEM_COMPARE: td.ItemCompareType,
+    id.ITEM_EDIT: td.ItemEditType,
+    id.ITEM_PERSIST: td.ItemPersistType,
+    id.KEYFRAME: td.KeyframeType,
+    id.MOVE: td.MoveType,
+    id.PICKUP: td.PickupType,
+    id.ROTATE: td.RotateType,
+    id.STOP: td.StopType,
+    id.SCALE: td.ScaleType,
+    id.SPAWN: td.SpawnType,
+    id.SFX: td.SfxType,
+    id.ON_DEATH: td.OnDeathType,
+    id.OPTIONS: td.OptionsType,
+    id.OFFSET_CAMERA: td.OffsetCameraType,
+    id.GAMEPLAY_OFFSET: td.GameplayOffsetType,
+    id.LINK_VISIBLE: td.LinkVisibleType,
+    id.CHANGE_BG: td.ChangeBgType,
+    id.CHANGE_GR: td.ChangeGrType,
+    id.CHANGE_MG: td.ChangeMgType,
+    id.TELEPORT: td.TeleportType,
+    id.TIME: td.TimeType,
+    id.TIMEWARP: td.TimewarpType,
+    id.TIME_CONTROL: td.TimeControlType,
+    id.TIME_EVENT: td.TimeEventType,
+    id.TOGGLE: td.ToggleType,
+    id.TOGGLE_BLOCK: td.ToggleBlockType,
+    id.UI: td.UiType,
+    id.ZOOM_CAMERA: td.ZoomCameraType
 }
+"""Unfinished mapping of Object IDs to non-common Object TypedDicts"""
 
 class Object(dict[str, Any]):
     """
@@ -68,8 +115,9 @@ class ObjectList(list[ObjectType]):
     - Addition operators (+, +=): disabled - use extend() instead
     """
     
-    def __init__(self):
+    def __init__(self, *, live_editor: bool):
         super().__init__()
+        self._live_editor_mode = live_editor
         self.added_objects: list[ObjectType] = []
     
     @staticmethod
@@ -86,6 +134,8 @@ class ObjectList(list[ObjectType]):
         index: SupportsIndex | slice, 
         value: ObjectType | list[ObjectType]):
         """Validate when setting an item by index."""
+        if self._live_editor_mode:
+            raise RuntimeError("Direct item editing is not allowed in live editor mode")
         if isinstance(index, slice):
             if not isinstance(value, list):
                 raise TypeError(f"can only assign a list (not {type(value).__name__}) to a slice")
@@ -109,6 +159,8 @@ class ObjectList(list[ObjectType]):
     
     def insert(self, index: SupportsIndex, obj: ObjectType):
         """Validate and insert an object at index."""
+        if self._live_editor_mode:
+            raise RuntimeError("Direct item editing is not allowed in live editor mode")
         wrapped = self._wrap_object(obj)
         super().insert(index, wrapped)
         self.added_objects.append(wrapped)
