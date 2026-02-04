@@ -72,7 +72,30 @@ class new():
     @classmethod
     def _register_free_ids(cls):
         cls._initialized = True
-        ...
+        global objects
+        
+        cls._used_group_ids: set[int] = set()
+        cls._used_item_ids: set[int] = set()
+        cls._used_color_ids: set[int] = set()
+        cls._used_collision_ids: set[int] = set()
+        cls._used_control_ids: set[int] = set()
+        
+        for obj in objects:
+            if (key := ObjProp.GROUPS) in obj:
+                cls._used_group_ids.update(obj[key])
+            if (key := ObjProp.Trigger.Count.ITEM_ID) in obj:
+                cls._used_item_ids.add(int(obj[key]))
+            if (key := ObjProp.Trigger.CollisionBlock.BLOCK_ID) in obj:
+                cls._used_collision_ids.add(int(obj[key]))
+            if (key := ObjProp.Trigger.CONTROL_ID) in obj:
+                cls._used_control_ids.add(int(obj[key]))
+        
+        cls._group_iter = (i for i in range(1, 9999) if i not in cls._used_group_ids)
+        cls._item_iter = (i for i in range(1, 9999) if i not in cls._used_item_ids)
+        # cls._color_iter = (i for i in range(1, 9999) if i not in cls._used_color_ids)
+        cls._collision_iter = (i for i in range(1, 9999) if i not in cls._used_collision_ids)
+        cls._control_iter = (i for i in range(1, 9999) if i not in cls._used_control_ids)
+    
     
     @classmethod
     def _get_next(cls, iterator: Iterator[int] | None, id_type: str) -> int:
