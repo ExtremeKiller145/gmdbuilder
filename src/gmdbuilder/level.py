@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from typing import Iterator
+from gmdbuilder.object_typeddict import ObjectType
 from questionary import confirm
 from gmdkit.models.level import Level as KitLevel
 from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
@@ -38,7 +39,7 @@ def from_file(file_path: str | Path) -> None:
     for kit_obj in _kit_level.objects: # type: ignore
         obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
         if tag_group not in obj.get(ObjProp.GROUPS, set()):
-            objects.append(obj, bypass_validation=True)
+            objects.append(obj, bypass_validation=True, import_mode=True)
 
 
 def from_live_editor(url: str = WEBSOCKET_URL) -> None:
@@ -55,7 +56,7 @@ def from_live_editor(url: str = WEBSOCKET_URL) -> None:
     for kit_obj in kit_objects: # type: ignore
         obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
         if tag_group not in obj.get(ObjProp.GROUPS, set()):
-            objects.append(obj, bypass_validation=True)
+            objects.append(obj, bypass_validation=True, import_mode=True)
     
     _live_editor_connected = True
 
@@ -155,12 +156,13 @@ def _validate_and_prepare_objects(validated_objects: ObjectList) -> None:
     pass
 
 
-def _objects_to_kit(validated_objects: ObjectList) -> KitObjectList:
+def _objects_to_kit(validated_objects: list[ObjectType]) -> KitObjectList:
     """Convert ObjectList to gmdkit ObjectList."""
     
     kit_objects = KitObjectList()
     for obj in validated_objects:
         kit_objects.append(KitObject(to_raw_object(obj))) #type: ignore
+    print(f"Exporting {len(kit_objects)} objects: \n{kit_objects!r}\n")
     return kit_objects
 
 
@@ -195,17 +197,19 @@ def export_to_file(file_path: str | Path | None = None) -> None:
 
 def export_to_live_editor(*, batch_size: int = 500) -> None:
     """Export level to live editor."""
-    global objects, _live_editor_connected
+    global objects, _kit_level, _live_editor_connected
     
     if not _live_editor_connected:
         raise RuntimeError("No live editor connection. Use level.from_live_editor() first")
     
+    if _kit_level is None:
+        raise RuntimeError("Live editor instance not found")
+    
     # Validate and prepare objects
     _validate_and_prepare_objects(objects)
     
-    # Convert and export
-    kit_objects = _objects_to_kit(objects)
-    LiveEditor.add_objects(kit_objects, batch_size) #type: ignore
-    LiveEditor.close() #type: ignore
+    kit_objects = _objects_to_kit(objects.added_objects)
+    _kit_level.add_objects(kit_objects, batch_size) #type: ignore
+    _kit_level.close() #type: ignore
     new.reset_all()
     objects.clear()
