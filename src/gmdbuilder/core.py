@@ -63,7 +63,11 @@ def _from_raw_key_cached(key: object) -> str:
 def from_raw_object(raw_obj: dict[int|str, Any]) -> ObjectType: ...
 @overload
 def from_raw_object(raw_obj: dict[int|str, Any], *, obj_type: type[T]) -> T: ...
-def from_raw_object(raw_obj: dict[int|str, Any], bypass_validation: bool = False) -> ObjectType:
+def from_raw_object(
+    raw_obj: dict[int|str, Any], *,
+    bypass_validation: bool = False, 
+    obj_type: type[ObjectType] | None = None
+) -> ObjectType:
     """
     Convert raw int-keyed dict from gmdkit to a new ObjectType.
     
@@ -105,19 +109,9 @@ def from_object_string(obj_string: str, *, obj_type: type[ObjectType] | None = N
     Example:
         "1,1,2,50,3,45;" → {'a1': 1, 'a2': 50, 'a3': 45}
     """
-    raw_obj = kit_to_raw_obj(KitObject.from_string(obj_string)) # type: ignore
+    raw_obj = KitObject.from_string(obj_string) # type: ignore
     return from_raw_object(raw_obj)
 
-
-def kit_to_raw_obj(obj: dict[int|str, Any]) -> dict[int|str, Any]:
-    """Mutates KitObject for specific props like 'group' to normal representation"""
-    
-    if (k := ObjProp.GROUPS) in obj:
-        obj[k] = '.'.join(map(str, sorted(obj[k])))
-    if (k := ObjProp.Trigger.Spawn.REMAPS) in obj:
-        ...
-    
-    return obj
 
 
 @overload
@@ -136,4 +130,4 @@ def new_object(object_id: int) -> ObjectType:
         ObjectType dict with default properties (using 'a<num>' keys)
     """
     # Convert from gmdkit's {1: val, 2: val} to our {'a1': val, 'a2': val}
-    return from_raw_object(kit_to_raw_obj(KitObject.default(object_id))) # type: ignore
+    return from_raw_object(KitObject.default(object_id)) # type: ignore

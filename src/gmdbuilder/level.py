@@ -7,10 +7,38 @@ from questionary import confirm
 from gmdkit.models.level import Level as KitLevel
 from gmdkit.models.object import ObjectList as KitObjectList, Object as KitObject
 from gmdkit.extra.live_editor import WEBSOCKET_URL, LiveEditor
+from gmdkit.serialization import type_cast as tc
+from gmdkit.casting.object_props import PROPERTY_DECODERS, PROPERTY_ENCODERS
 
 from gmdbuilder.object_types import ObjectList
 from gmdbuilder.mappings.obj_prop import ObjProp
-from gmdbuilder.core import from_raw_object, kit_to_raw_obj, to_raw_object
+from gmdbuilder.core import from_raw_object, to_raw_object
+
+
+RAW_DECODERS = {}
+for key, decoder in PROPERTY_DECODERS.items():
+    # Keep basic types as-is
+    if decoder in (tc.to_bool, int, float):
+        RAW_DECODERS[key] = decoder
+    else:
+        RAW_DECODERS[key] = str
+
+RAW_ENCODERS = {}
+for key, encoder in PROPERTY_ENCODERS.items():
+    if encoder in (tc.from_bool, tc.from_float):
+        RAW_ENCODERS[key] = encoder
+    else:
+        RAW_ENCODERS[key] = str
+
+
+class RawObject(KitObject):
+    DECODER = staticmethod(tc.dict_cast(RAW_DECODERS, numkey=True))
+    ENCODER = staticmethod(tc.dict_cast(RAW_ENCODERS, default=tc.serialize))
+
+class RawObjectList(KitObjectList):
+    DECODER = RawObject.from_string
+    ENCODER = staticmethod(lambda obj: obj.to_string())
+
 
 
 objects = ObjectList(live_editor=False)
@@ -36,8 +64,8 @@ def from_file(file_path: str | Path) -> None:
     _source_file = path
     objects = ObjectList(live_editor=False)
     
-    for kit_obj in _kit_level.objects: # type: ignore
-        obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
+    for raw_obj in _kit_level.objects: # type: ignore
+        obj = from_raw_object(raw_obj, bypass_validation=True) # type: ignore
         if tag_group not in obj.get(ObjProp.GROUPS, set()):
             objects.append(obj, bypass_validation=True, import_mode=True)
 
@@ -54,11 +82,12 @@ def from_live_editor(url: str = WEBSOCKET_URL) -> None:
     _, kit_objects = _kit_level.get_level_string() # type: ignore
     
     for kit_obj in kit_objects: # type: ignore
-        obj = from_raw_object(kit_to_raw_obj(kit_obj), bypass_validation=True) # type: ignore
+        obj = from_raw_object(kit_obj, bypass_validation=True) # type: ignore
         if tag_group not in obj.get(ObjProp.GROUPS, set()):
             objects.append(obj, bypass_validation=True, import_mode=True)
     
     _live_editor_connected = True
+
 
 class new():
     """Return the next free ID for group, item, color, collision, control IDs."""
