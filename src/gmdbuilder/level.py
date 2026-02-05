@@ -211,8 +211,7 @@ def export_to_file(file_path: str | Path | None = None) -> None:
     _validate_and_prepare_objects(objects)
     
     # Convert and export
-    kit_objects = _objects_to_kit(objects)
-    _kit_level.objects = kit_objects #type: ignore
+    _kit_level.objects = objects #type: ignore
     _kit_level.to_file(str(export_path)) #type: ignore
     new.reset_all()
     objects.clear()
