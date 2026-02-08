@@ -9,12 +9,9 @@ A type-safe general-purpose Python framework for pragmatic Geometry Dash level e
 gmdbuilder lets you:
 - Read & write Geometry Dash levels
 - Work directly with triggers, groups, and objects - and choose your own abstractions
-- Use templates to accelerate development
-- Choose your own level of type safety
+- Use templates and pre-built systems to accelerate development
 
-See practical **Examples**!
-
-gmdbuilder is developed in collaboration with HDanke, the creator of **gmdkit** (a dependency of this framework) and his unofficial **GD Editor Docs**.
+**gmdbuilder** is developed in collaboration with HDanke, the creator of **gmdkit** (a dependency of this framework) and his unofficial **GD Editor Docs**.
 
 *(No overengineered language was made in the making of this project)* 
 
@@ -26,3 +23,51 @@ Python fits surprisingly well as a language for GD scripting:
 - Any programming paradigm that you want is well supported
 - Reliable type system with good debugger/type-checker tooling
 - Huge package ecosystem
+
+
+## Installation
+Install the latest release from PyPI (i didnt set this up yet):
+
+```bash
+pip install gmdkit
+```
+
+Install the latest development version from GitHub:
+
+```bash
+pip install git+https://github.com/UHDanke/gmdkit.git
+```
+
+## Example
+
+```python
+from gmdbuilder import level
+
+# This group gets deleted on load and automatically added to new objects
+level.tag_group = 9999 # Set to 9999 by default
+
+# From .gmd file, supports full object editing/deleting
+level.from_file("example.gmd")
+
+# From WSLiveEditor, only supports adidng objects
+level.from_live_editor()
+
+obj_list = level.objects # mutations are validated
+
+# Object ID and Property enums (all values are Literal) 
+from gmdbuilder.mappings.obj_prop import ObjProp
+from gmdbuilder.mappings.obj_id import ObjId
+
+for obj in obj_list:
+    if obj[ObjProp.ID] == ObjID.Trigger.MOVE:
+        obj[ObjProp.GROUPS] = {}
+    elif obj[ObjProp.ID] == ObjID.Trigger.COUNT:
+        obj_list.remove(obj)
+
+block = from_raw_object({1: 1})
+
+obj_list.delete_where(block)
+obj_lits.delete_where(lambda obj: obj.get())
+
+
+```

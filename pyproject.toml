@@ -28,7 +28,6 @@ where = ["src"]
 typeCheckingMode = "strict"
 reportAny = "none"
 reportExplicitAny = "none"
-# ignore = ["**/venv/**", "**/site-packages/**"]
 reportMissingTypeStubs = "none"
 
 [tool.ruff.lint]
@@ -37,13 +36,14 @@ ignore = [
     "E702",  # Multiple statements on one line (semicolon)
     "E731",  # Do not assign a lambda expression, use a def
     "E741",  # Ambiguous variable name (allows single letter vars like l, o, I)
+    # "E402",  # Import not at top line
     # "F401",  # Imported but unused (useful for __init__.py files)
-    "F403",  # Star imports (from module import *)
+    # "F403",  # Star imports (from module import *)
     # "B008",  # Do not perform function call in argument defaults
     # "B904",  # Use raise from to specify exception cause
-    "N802",  # Function name should be lowercase
-    "N803",  # Argument name should be lowercase
-    "N806",  # Variable in function should be lowercase
+    # "N802",  # Function name should be lowercase
+    # "N803",  # Argument name should be lowercase
+    # "N806",  # Variable in function should be lowercase
 ]
 
 [tool.pytest.ini_options]

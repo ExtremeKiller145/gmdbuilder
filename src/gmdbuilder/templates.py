@@ -1,4 +1,5 @@
 
+from math import floor
 import gmdbuilder.object_typeddict as td
 from gmdbuilder.core import new_object
 from gmdbuilder.mappings.obj_id import ObjId
@@ -24,6 +25,22 @@ class Trigger:
         obj[ObjProp.Trigger.Move.TARGET_ID] = target 
         obj[ObjProp.Trigger.Move.TARGET_POS] = location
         obj[ObjProp.Trigger.Move.TARGET_MODE] = True # untested
+        obj[ObjProp.Trigger.Move.DURATION] = duration
+        obj[ObjProp.Trigger.Move.EASING] = easing_type
+        obj[ObjProp.Trigger.Move.EASE_RATE] = easing_rate
+        return obj
+    
+    @staticmethod
+    def move_by(
+        x: float, y: float, dy: float, dx: float,
+        duration: float = 0, easing_type: int = 0, easing_rate: float = 1
+    ) -> td.MoveType:
+        """Create a move-by trigger template object."""
+        obj = new_object(ObjId.Trigger.MOVE)
+        obj[ObjProp.X] = x
+        obj[ObjProp.Y] = y
+        obj[ObjProp.Trigger.Move.MOVE_X] = floor(dx)
+        obj[ObjProp.Trigger.Move.MOVE_Y] = floor(dy)
         obj[ObjProp.Trigger.Move.DURATION] = duration
         obj[ObjProp.Trigger.Move.EASING] = easing_type
         obj[ObjProp.Trigger.Move.EASE_RATE] = easing_rate

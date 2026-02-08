@@ -2,9 +2,8 @@
 
 from functools import lru_cache
 from typing import Any, Literal, TypeVar, cast, overload
-from gmdkit.models.object import Object as KitObject
+from gmdbuilder.level import RawObject
 from gmdbuilder.mappings.obj_prop import ObjProp
-from gmdbuilder.validation import setting
 from gmdbuilder.futils import translate_list_string, translate_map_string
 from gmdbuilder.object_typeddict import AdvFollowType, MoveType, ObjectType, RotateType
 from gmdbuilder.object_types import Object
@@ -44,7 +43,7 @@ def to_raw_object(obj: ObjectType) -> dict[int|str, Any]:
         try:
             raw[_to_raw_key_cached(key)] = value
         except ValueError as e:
-            raise ValueError(f"Object has bad/unsupported key {key!r}: {obj=}") from e
+            raise ValueError(f"Object has bad/unsupported key {key!r}:\n{obj=}") from e
     return raw
 
 
@@ -57,15 +56,12 @@ def _from_raw_key_cached(key: object) -> str:
     raise ValueError()
 
 
-
-
 @overload
 def from_raw_object(raw_obj: dict[int|str, Any]) -> ObjectType: ...
 @overload
 def from_raw_object(raw_obj: dict[int|str, Any], *, obj_type: type[T]) -> T: ...
 def from_raw_object(
     raw_obj: dict[int|str, Any], *,
-    bypass_validation: bool = False, 
     obj_type: type[ObjectType] | None = None
 ) -> ObjectType:
     """
@@ -91,11 +87,9 @@ def from_raw_object(
     if int(converted[ObjProp.ID]) == -1:
         raise TypeError(f"Missing required Object ID key 1 in raw object: \n{raw_obj=}")
     
-    if setting.export_solid_target_check and not bypass_validation:
-        wrapped = Object(converted[ObjProp.ID])
-        wrapped.update(converted)
-        return cast(ObjectType, wrapped)
-    return converted
+    wrapped = Object(converted[ObjProp.ID])
+    wrapped.update(converted)
+    return cast(ObjectType, wrapped)
 
 
 @overload
@@ -109,9 +103,7 @@ def from_object_string(obj_string: str, *, obj_type: type[ObjectType] | None = N
     Example:
         "1,1,2,50,3,45;" → {'a1': 1, 'a2': 50, 'a3': 45}
     """
-    raw_obj = KitObject.from_string(obj_string) # type: ignore
-    return from_raw_object(raw_obj)
-
+    return from_raw_object(RawObject.from_string(obj_string)) # type: ignore
 
 
 @overload
@@ -130,4 +122,4 @@ def new_object(object_id: int) -> ObjectType:
         ObjectType dict with default properties (using 'a<num>' keys)
     """
     # Convert from gmdkit's {1: val, 2: val} to our {'a1': val, 'a2': val}
-    return from_raw_object(KitObject.default(object_id)) # type: ignore
+    return from_raw_object(RawObject.default(object_id)) # type: ignore

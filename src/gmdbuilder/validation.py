@@ -6,23 +6,25 @@ if TYPE_CHECKING:
     from gmdbuilder.object_typeddict import ObjectType
 
 class setting:
-    immediate_property_allowed_check = True
-    """Checks that all property keys are allowed on the given object ID."""
-    
-    immediate_property_type_check = True
-    """Checks that all property value types and ranges are correct"""
-    
-    export_target_exists_check = True
-    """Checks that all targets referenced by triggers actually exist"""
-    
-    export_solid_target_check = True
-    """Checks that visual-related triggers target non-trigger & visible groups/objects"""
-    
-    export_spawn_limit_check = True
-    """Checks for any spawn-limit occurrance within trigger execution chains"""
-    
-    export_group_parent_check = True
-    """Checks that every group parent is unique (no two parents for 1 ID)"""
+    class immediate:
+        property_allowed_check = True
+        """Checks that all property keys are allowed on the given object ID."""
+        
+        property_type_check = True
+        """Checks that all property value types and ranges are correct"""
+
+    class export:
+        target_exists_check = True
+        """Checks that all targets referenced by triggers actually exist"""
+        
+        solid_target_check = True
+        """Checks that visual-related triggers target non-trigger & visible groups/objects"""
+        
+        spawn_limit_check = True
+        """Checks for any spawn-limit occurrance within trigger execution chains"""
+        
+        group_parent_check = True
+        """Checks that every group parent is unique (no two parents for 1 ID)"""
 
 
 class ValidationError(Exception):
@@ -51,12 +53,11 @@ class ValidationError(Exception):
 
 
 def validate_obj(obj: "ObjectType"):
-    for k, v in obj.items(): validate(obj['a1'], k, v)
+    for k, v in obj.items(): validate(obj[ObjProp.ID], k, v)
 
 def validate(obj_id: int, key: str, v: Any):
     """immediate validation. to be called by 'level.objects' mutations"""
-    # raise NotImplementedError()
-    if not setting.immediate_property_type_check: return
+    if not setting.immediate.property_type_check: return
     
     match key:
         case ObjProp.ID:
